@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tilt-Consistent, Uncertainty-Aware Jerk-Model MPC with CBFs for Safe Ballbot Navigation</title>
+<meta name="description" content="Jerk-model MPC with control barrier functions, a tilt-consistent acceleration bound, an HSMC-ESO-ECBF tracker and conformal prediction for safe ballbot navigation.">
+<meta property="og:image" content="static/img/poster_mpc_cbf.jpg">
+<link rel="icon" href="static/img/robot_icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: #222; font: 16px/1.7 Inter, system-ui, sans-serif; }
+a { color: #1a5fb4; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+header { padding: 64px 0 28px; text-align: center; }
+h1 { font-size: clamp(1.5rem, 3.4vw, 2.2rem); line-height: 1.3; font-weight: 700; margin: 0 0 20px; }
+.authors { font-size: 1.1rem; margin: 0 0 6px; }
+.affil { color: #666; font-size: .9rem; margin: 0; }
+.links { margin-top: 22px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.links a, .links span { border: 1px solid #ccc; border-radius: 6px; padding: 6px 16px; font-size: .92rem; color: #222; }
+.links a:hover { background: #f4f4f4; text-decoration: none; }
+.links span { color: #999; }
+h2 { font-size: 1.3rem; font-weight: 600; margin: 48px 0 14px; }
+.tldr h2 { text-align: left; }
+.tldr p { text-align: left; font-size: 1.05rem; margin: 0; }
+.videos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 24px; }
+@media (max-width: 760px) { .videos { grid-template-columns: 1fr; } }
+.video { margin: 0; }
+.video h3 { font-size: 1.05rem; font-weight: 600; margin: 0 0 10px; }
+.video video { width: 100%; display: block; border: 1px solid #e5e5e5; }
+.video p { color: #666; font-size: .9rem; margin: 8px 0 0; }
+footer { margin-top: 30px; padding: 24px 0 40px; border-top: 1px solid #eee; text-align: center; color: #888; font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Tilt-Consistent, Uncertainty-Aware Jerk-Model MPC with Control Barrier Functions for Safe Ballbot Navigation</h1>
+    <p class="authors">Duc Cuong Vu<sup>1</sup> &nbsp;&middot;&nbsp; Tung Lam Nguyen<sup>2</sup></p>
+    <p class="affil"><sup>1</sup>School of Electrical and Electronic Engineering, Nanyang Technological University, Singapore</p>
+    <p class="affil"><sup>2</sup>Motion Control and Applied Robotics Laboratory, Hanoi University of Science and Technology, Vietnam</p>
+    <div class="links">
+      <span title="Available after review">Paper (soon)</span>
+      <a href="https://github.com/duccuongvu/ballbot-simulation">Code</a>
+      <a href="#videos">Videos</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="tldr">
+    <h2>TL;DR</h2>
+    <p>A ballbot must lean to accelerate. We plan on a simple <em>jerk model</em> with control barrier functions, bound
+      its acceleration by the steepest lean that a tilt-safe tracker (HSMC-ESO-ECBF) allows, and inflate predicted
+      obstacles with conformal prediction. The result avoids static, moving, rotating, concave and unpredictable obstacles
+      in MuJoCo, plans in about 10&nbsp;ms, and never asks the robot to lean more than it safely can.</p>
+  </section>
+
+  <section id="videos">
+    <h2>Videos</h2>
+    <div class="videos">
+    <div class="video">
+      <h3>1. Balance control</h3>
+      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_benchmark.jpg">
+        <source src="static/video/benchmark.mp4" type="video/mp4">
+      </video>
+      <p>The ballbot balancing and tracking references with LQR on the contact-rich MuJoCo model.</p>
+    </div>
+    <div class="video">
+      <h3>2. Tilt-safe tracking</h3>
+      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_compare_hsmc_lqr.jpg">
+        <source src="static/video/compare_hsmc_lqr.mp4" type="video/mp4">
+      </video>
+      <p>HSMC-ESO-ECBF vs. HSMC-ESO vs. LQR on the same references: with the ECBF the tilt stays below its limit.</p>
+    </div>
+    <div class="video">
+      <h3>3. Obstacle avoidance</h3>
+      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_mpc_cbf.jpg">
+        <source src="static/video/mpc_cbf.mp4" type="video/mp4">
+      </video>
+      <p>Jerk-model MPC-CBF with the HSMC-ESO-ECBF tracker: static, moving, rotating and concave obstacles.</p>
+    </div>
+    <div class="video">
+      <h3>4. Predicted obstacles</h3>
+      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_conformal.jpg">
+        <source src="static/video/conformal.mp4" type="video/mp4">
+      </video>
+      <p>Constant-velocity prediction (left) vs. the same prediction with conformal inflation (right).</p>
+    </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">&copy; 2026 Duc Cuong Vu and Tung Lam Nguyen. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
