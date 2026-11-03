@@ -5,105 +5,244 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Safe-Ballbot: Tilt-Consistent MPC with CBFs for Ballbot Navigation</title>
 <meta name="description" content="Jerk-model MPC with control barrier functions, a tilt-consistent acceleration bound, an HSMC-ESO-ECBF tracker and conformal prediction for safe ballbot navigation.">
+<meta property="og:title" content="Safe-Ballbot: Tilt-Consistent MPC with CBFs for Ballbot Navigation">
 <meta property="og:image" content="static/img/poster_mpc_cbf.jpg">
+<meta name="theme-color" content="#0f172a">
 <link rel="icon" href="static/img/robot_icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f6f7fb;
+  --card: #ffffff;
+  --text: #1c1f26;
+  --muted: #5d6474;
+  --line: #e4e7ee;
+  --accent: #2f5bea;
+  --accent-2: #0ea5a4;
+  --accent-soft: #eaf0ff;
+  --btn: #1c1f26;
+  --btn-text: #ffffff;
+  --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.07);
+  --hero: #ffffff;
+}
 * { box-sizing: border-box; }
-body { margin: 0; background: #fff; color: #222; font: 16px/1.7 Inter, system-ui, sans-serif; }
-a { color: #1a5fb4; text-decoration: none; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 Inter, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-header { padding: 64px 0 28px; text-align: center; }
-h1 { font-size: clamp(1.5rem, 3.4vw, 2.2rem); line-height: 1.3; font-weight: 700; margin: 0 0 20px; }
-.authors { font-size: 1.1rem; margin: 0 0 6px; }
-.affil { color: #666; font-size: .9rem; margin: 0; }
-.links { margin-top: 22px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.links a, .links span { border: 1px solid #ccc; border-radius: 6px; padding: 6px 16px; font-size: .92rem; color: #222; }
-.links a:hover { background: #f4f4f4; text-decoration: none; }
-.links span { color: #999; }
-h2 { font-size: 1.3rem; font-weight: 600; margin: 48px 0 14px; }
-.tldr h2 { text-align: left; }
-.tldr p { text-align: left; font-size: 1.05rem; margin: 0; }
-.videos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 24px; }
-@media (max-width: 760px) { .videos { grid-template-columns: 1fr; } }
-.video { margin: 0; }
-.video h3 { font-size: 1.05rem; font-weight: 600; margin: 0 0 10px; }
-.video video { width: 100%; display: block; border: 1px solid #e5e5e5; }
-.video p { color: #666; font-size: .9rem; margin: 8px 0 0; }
-footer { margin-top: 30px; padding: 24px 0 40px; border-top: 1px solid #eee; text-align: center; color: #888; font-size: .85rem; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.narrow { max-width: 1100px; }
+
+/* ---------- hero ---------- */
+header { background: var(--hero); padding: 72px 0 8px; text-align: center; }
+.venue { display: inline-block; font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft); padding: 4px 12px; border-radius: 999px; margin-bottom: 18px; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.75rem); line-height: 1.2; font-weight: 800; letter-spacing: -.02em; margin: 0 auto 18px; max-width: 1150px; text-wrap: balance; }
+h1 .brand { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.authors { font-size: 1.1rem; font-weight: 500; margin: 0 0 4px; }
+.affil { color: var(--muted); font-size: .92rem; margin: 0; }
+.links { margin-top: 26px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 9px 20px; font-size: .95rem; font-weight: 500;
+  background: var(--btn); color: var(--btn-text); transition: transform .15s ease, opacity .15s ease; }
+.btn:hover { text-decoration: none; transform: translateY(-1px); opacity: .9; }
+.btn svg { width: 18px; height: 18px; fill: currentColor; }
+.btn.disabled { opacity: .4; cursor: not-allowed; }
+.btn.disabled:hover { transform: none; }
+
+
+/* ---------- sections ---------- */
+section { padding: 56px 0 8px; }
+h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -.01em; margin: 0 0 8px; }
+.lead { color: var(--muted); margin: 0 0 26px; }
+h2 + .videos { margin-top: 24px; }
+
+.tldr { max-width: 1000px; margin: 32px auto 0; text-align: left; background: var(--bg-soft); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 22px 26px; }
+.tldr .label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.tldr p { margin: 0; font-size: 1.06rem; }
+
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 22px; }
+@media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .cards { grid-template-columns: 1fr; } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+.card .icon { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); margin-bottom: 12px; }
+.card .icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.card h3 { font-size: 1rem; font-weight: 600; margin: 0 0 4px; line-height: 1.35; }
+.card p { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.55; }
+
+/* ---------- videos ---------- */
+.videos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 24px; }
+section .wrap { max-width: 1140px; }
+.videos > figure:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 12px); }
+@media (max-width: 760px) { .videos { grid-template-columns: 1fr; } .videos > figure:last-child:nth-child(odd) { width: 100%; } }
+figure { margin: 0; }
+.frame { position: relative; border-radius: 0; overflow: hidden; background: #000; box-shadow: var(--shadow); border: 1px solid var(--line); aspect-ratio: 16 / 9; }
+.frame video { width: 100%; height: 100%; display: block; object-fit: contain; }
+.tag { position: absolute; top: 10px; left: 10px; font-size: .72rem; font-weight: 600; letter-spacing: .04em;
+  color: #fff; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); padding: 3px 9px; border-radius: 0; pointer-events: none; }
+.vs { display: flex; justify-content: space-between; font-size: .8rem; font-weight: 600; color: var(--muted); margin: 8px 4px 0; }
+figure h3 { font-size: 1.08rem; font-weight: 600; margin: 14px 0 4px; }
+figure p { color: var(--muted); font-size: .93rem; margin: 0; }
+.group-title { grid-column: 1 / -1; text-align: center; font-size: 1.08rem; font-weight: 600; margin: -18px 0 0; }
+
+.sim { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start; margin-top: 24px; }
+@media (max-width: 860px) { .sim { grid-template-columns: 1fr; } }
+.sim p { margin: 0 0 14px; }
+.sim ul { margin: 0; padding-left: 20px; color: var(--muted); }
+.sim li { margin: 4px 0; }
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.stat { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: var(--card); }
+.stat .num { font-size: 1.6rem; font-weight: 700; letter-spacing: -.01em; color: var(--accent); line-height: 1.2; }
+.stat .cap { font-size: .88rem; color: var(--muted); margin-top: 2px; }
+footer { margin-top: 64px; padding: 28px 0 44px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: .85rem; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <h1>Safe-Ballbot: Tilt-Consistent MPC with Control Barrier Functions for Ballbot Navigation</h1>
+    <span class="venue">Under review</span>
+    <h1><span class="brand">Safe-Ballbot</span>: Tilt-Consistent MPC with Control Barrier Functions for Ballbot Navigation</h1>
     <p class="authors">Anonymous Authors</p>
-    <p class="affil">Under review</p>
     <div class="links">
-      <span title="Available after review">Paper (soon)</span>
-      <a href="https://github.com/safe-ballbot/safe-ballbot">Code</a>
-      <a href="#videos">Videos</a>
+      <span class="btn disabled" title="Available after review">
+        <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM8 12h8v1.6H8V12zm0 4h8v1.6H8V16z"/></svg>
+        Paper (soon)
+      </span>
+      <span class="btn disabled" title="Available after review">
+        <svg viewBox="0 0 24 24"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>
+        Code (soon)
+      </span>
     </div>
+
+    <div class="tldr">
+      <div class="label">TL;DR</div>
+      <p>A ballbot must lean to accelerate. We plan on a simple <em>jerk model</em> with control barrier functions, bound
+          its acceleration by the steepest lean that a tilt-safe tracker (HSMC-ESO-ECBF) allows, and inflate predicted
+          obstacles with conformal prediction. The result avoids static, moving, rotating, concave and unpredictable obstacles
+          in MuJoCo, plans in about 10&nbsp;ms, and never asks the robot to lean more than it safely can.</p>
+    </div>
+
   </div>
 </header>
 
-<main class="wrap">
-  <section class="tldr">
-    <h2>TL;DR</h2>
-    <p>A ballbot must lean to accelerate. We plan on a simple <em>jerk model</em> with control barrier functions, bound
-      its acceleration by the steepest lean that a tilt-safe tracker (HSMC-ESO-ECBF) allows, and inflate predicted
-      obstacles with conformal prediction. The result avoids static, moving, rotating, concave and unpredictable obstacles
-      in MuJoCo, plans in about 10&nbsp;ms, and never asks the robot to lean more than it safely can.</p>
+<main>
+  <section>
+    <div class="wrap">
+      <div class="cards">
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17c3 0 4-10 9-10s6 10 9 10"/><circle cx="12" cy="7" r="1.5"/></svg></div>
+          <h3>Jerk-model MPC-CBF</h3>
+          <p>A simple planning model with control barrier functions for collision avoidance.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M12 21 7 5"/><path d="M9.2 12a3 3 0 0 1 2.8-1"/></svg></div>
+          <h3>Tilt-consistent bound</h3>
+          <p>Acceleration is limited by the steepest lean the tracker can safely reach.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>HSMC-ESO-ECBF tracker</h3>
+          <p>Tilt-safe tracking that keeps the lean angle below its limit.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/></svg></div>
+          <h3>Conformal prediction</h3>
+          <p>Predicted obstacles are inflated to cover unpredictable motion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="simulation">
+    <div class="wrap">
+      <h2>MuJoCo simulation</h2>
+      <div class="sim">
+        <div>
+          <p>All experiments run on a high-fidelity, contact-rich MuJoCo model of the ballbot rather than on the
+            simplified models used for design. The controllers and the planner never see this model; they only act on it.</p>
+          <p>The robot model is adapted from the open-source
+            <a href="https://github.com/asRoBallet/asRoBallet_mujoco" target="_blank" rel="noopener">asRoBallet MuJoCo model</a>.</p>
+          <ul>
+            <li>Free-floating body balancing on a ball, driven by three omni wheels spaced 120&deg; apart with axles tilted 45&deg;.</li>
+            <li>Every passive roller of the omni wheels is simulated, with its own contacts against the ball.</li>
+            <li>Ball&ndash;floor contact with sliding, torsional and rolling friction on an elliptic friction cone.</li>
+            <li>Coulomb friction and damping in the wheel and roller joints, absent from the design models.</li>
+            <li>Wheel torques saturated at &plusmn;4&nbsp;N&middot;m; controllers run at the simulation rate.</li>
+          </ul>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="num">36</div><div class="cap">passive rollers in contact with the ball</div></div>
+          <div class="stat"><div class="num">2&nbsp;ms</div><div class="cap">time step (500&nbsp;Hz), implicit integrator</div></div>
+          <div class="stat"><div class="num">6-D</div><div class="cap">ball&ndash;floor friction: sliding, torsional, rolling</div></div>
+          <div class="stat"><div class="num">&plusmn;4&nbsp;N&middot;m</div><div class="cap">wheel torque limit</div></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="videos">
-    <h2>Videos</h2>
-    <div class="videos">
-    <div class="video">
-      <h3>1. Balance control</h3>
-      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_benchmark.jpg">
-        <source src="static/video/benchmark.mp4" type="video/mp4">
-      </video>
-      <p>The ballbot balancing and tracking references with LQR on the contact-rich MuJoCo model.</p>
+    <div class="wrap">
+      <h2>Balance and tilt-safe tracking</h2>
+      <div class="videos">
+        <figure>
+          <div class="frame">
+            <video controls autoplay muted loop playsinline preload="metadata" poster="static/img/poster_benchmark.jpg">
+              <source src="static/video/benchmark.mp4" type="video/mp4">
+            </video>
+          </div>
+          <h3>Balance control</h3>
+        </figure>
+        <figure>
+          <div class="frame">
+            <video controls autoplay muted loop playsinline preload="metadata" poster="static/img/poster_compare_hsmc_lqr.jpg">
+              <source src="static/video/compare_hsmc_lqr.mp4" type="video/mp4">
+            </video>
+          </div>
+          <h3>Tilt-safe tracking</h3>
+        </figure>
+      </div>
     </div>
-    <div class="video">
-      <h3>2. Tilt-safe tracking</h3>
-      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_compare_hsmc_lqr.jpg">
-        <source src="static/video/compare_hsmc_lqr.mp4" type="video/mp4">
-      </video>
-      <p>HSMC-ESO-ECBF vs. HSMC-ESO vs. LQR on the same references: with the ECBF the tilt stays below its limit.</p>
-    </div>
-    <div class="video">
-      <h3>3. Obstacle avoidance</h3>
-      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_mpc_cbf.jpg">
-        <source src="static/video/mpc_cbf.mp4" type="video/mp4">
-      </video>
-      <p>Jerk-model MPC-CBF with the HSMC-ESO-ECBF tracker: static, moving, rotating and concave obstacles.</p>
-    </div>
-    <div class="video">
-      <h3>4. Predicted obstacles</h3>
-      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_conformal.jpg">
-        <source src="static/video/conformal.mp4" type="video/mp4">
-      </video>
-      <p>Constant-velocity prediction (left) vs. the same prediction with conformal inflation (right).</p>
-    </div>
-    <div class="video">
-      <h3>5. Four random obstacles</h3>
-      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_conformal_dense.jpg">
-        <source src="static/video/conformal_dense.mp4" type="video/mp4">
-      </video>
-      <p>Four obstacles with random motion cross the path one after the other: constant velocity (left) vs. conformal inflation (right).</p>
-    </div>
-    <div class="video">
-      <h3>6. Endless run on a closed path</h3>
-      <video autoplay muted loop playsinline preload="auto" poster="static/img/poster_conformal_loop.jpg">
-        <source src="static/video/conformal_loop.mp4" type="video/mp4">
-      </video>
-      <p>Path following among three roaming obstacles: after a detour the robot continues instead of turning back. Constant velocity (left) vs. conformal inflation (right).</p>
-    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Avoiding predicted obstacles</h2>
+      <div class="videos">
+        <figure>
+          <div class="frame">
+            <video controls autoplay muted loop playsinline preload="metadata" poster="static/img/poster_conformal.jpg">
+              <source src="static/video/conformal.mp4" type="video/mp4">
+            </video>
+          </div>
+          <h3>Suddenly turning obstacle</h3>
+        </figure>
+        <figure>
+          <div class="frame">
+            <video controls autoplay muted loop playsinline preload="metadata" poster="static/img/poster_conformal_loop.jpg">
+              <source src="static/video/conformal_loop.mp4" type="video/mp4">
+            </video>
+          </div>
+          <h3>Path following</h3>
+        </figure>
+        <figure>
+          <div class="frame">
+            <video controls autoplay muted loop playsinline preload="metadata" poster="static/img/poster_conformal_dense.jpg">
+              <source src="static/video/conformal_dense.mp4" type="video/mp4">
+            </video>
+          </div>
+        </figure>
+        <figure>
+          <div class="frame">
+            <video controls autoplay muted loop playsinline preload="metadata" poster="static/img/poster_conformal_dense_seed8.jpg">
+              <source src="static/video/conformal_dense_seed8.mp4" type="video/mp4">
+            </video>
+          </div>
+        </figure>
+        <h3 class="group-title">Random moving obstacles</h3>
+      </div>
     </div>
   </section>
 </main>
@@ -111,6 +250,22 @@ footer { margin-top: 30px; padding: 24px 0 40px; border-top: 1px solid #eee; tex
 <footer>
   <div class="wrap">&copy; 2026 The Authors. All rights reserved.</div>
 </footer>
+
+<script>
+// Play videos only while visible (saves bandwidth/CPU).
+(function () {
+  var vids = document.querySelectorAll('video');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { var p = e.target.play(); if (p && p.catch) p.catch(function () {}); }
+        else e.target.pause();
+      });
+    }, { threshold: 0.25 });
+    vids.forEach(function (v) { v.removeAttribute('autoplay'); io.observe(v); });
+  }
+})();
+</script>
 
 </body>
 </html>
